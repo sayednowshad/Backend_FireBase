@@ -4,11 +4,12 @@ import { app } from "./firebase";
 import Signup from "./Pages/Signup";
 import Signin from "./Pages/Signin";
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"; // ✅ Import Navigate
 import "./App.css";
 import Navbar from "./Components/Navbar";
-import Home from "./Components/Home";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Explore from "./Components/Explore";
+import Home from "./Components/Home";
+
 
 const auth = getAuth(app);
 
@@ -17,10 +18,12 @@ const App = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      setUser(user); // ✅ Set the user state correctly
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
       setLoading(false);
     });
+
+    return () => unsubscribe(); // Cleanup function
   }, []);
 
   if (loading) {
@@ -34,14 +37,17 @@ const App = () => {
 
   return (
     <Router>
-      <Navbar auth={auth} />
+      {user ? <Navbar auth={auth} /> : <>
+        <Signup />
+        <Signin />
+      </>}
       <Routes>
-        {/* ✅ If user is logged in, redirect to Home */}
-        <Route path="/" element={user ? <Navigate to="/home" /> : <Navigate to="/signin" />} />
-        <Route path="/home" element={user ? <Home /> : <Navigate to="/signin" />} />
-        <Route path="/explore" element={user ? <Explore /> : <Navigate to="/signin" />} />
-        <Route path="/signup" element={!user ? <Signup /> : <Navigate to="/home" />} />
-        <Route path="/signin" element={!user ? <Signin /> : <Navigate to="/home" />} />
+        {/* Add your routes here */}
+
+        <Route path="/explore" element={<Explore />} />
+        <Route path="/home" element={<Home />} />
+        
+
       </Routes>
     </Router>
   );
