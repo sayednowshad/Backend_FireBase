@@ -1,25 +1,22 @@
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
 import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "firebase/firestore";
 
-const auth = getAuth(); 
+const auth = getAuth();
 const db = getFirestore();
 
 const trackUserSession = async (user) => {
   if (!user) return;
 
   const userRef = doc(db, "activeSessions", user.uid);
-  const sessionId = Math.random().toString(36).substring(2);
-
   const existingSession = await getDoc(userRef);
 
   if (existingSession.exists()) {
-    
-    signOut(auth);
-    alert("You are already logged in from another device!");
-  } else {
-    
-    await setDoc(userRef, { sessionId });
+    await signOut(auth);
+    alert("You have been logged out because you logged in from another device!");
+    return;
   }
+
+  await setDoc(userRef, { sessionActive: true });
 };
 
 onAuthStateChanged(auth, (user) => {
