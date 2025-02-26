@@ -11,11 +11,12 @@ const trackUserSession = async (user) => {
   const existingSession = await getDoc(userRef);
 
   if (existingSession.exists()) {
-    await signOut(auth);
-    alert("You have been logged out because you logged in from another device!");
-    return;
+    // Remove previous session and log out old device
+    await deleteDoc(userRef);
+    alert("Previous session removed. You are now logged in.");
   }
 
+  // Store new session
   await setDoc(userRef, { sessionActive: true });
 };
 
@@ -25,7 +26,7 @@ onAuthStateChanged(auth, (user) => {
 
 const handleLogout = async () => {
   if (auth.currentUser) {
-    await deleteDoc(doc(db, "activeSessions", auth.currentUser.uid));
+    await deleteDoc(doc(db, "activeSessions", auth.currentUser.uid)); // Remove session from Firestore
     await signOut(auth);
   }
 };

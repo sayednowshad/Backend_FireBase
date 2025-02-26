@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+import { getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { getFirestore, doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
 import { app } from "../firebase";
 
 const auth = getAuth(app);
@@ -12,24 +12,24 @@ const Signin = () => {
 
   const SigninPage = async () => {
     try {
-      // Attempt to sign in
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       const userRef = doc(db, "activeSessions", user.uid);
 
-      // Check if user is already logged in
       const sessionSnap = await getDoc(userRef);
+
       if (sessionSnap.exists()) {
-        alert("This account is already logged in on another device!");
-        return;
+        // If already logged in, remove old session and log out previous device
+        await deleteDoc(userRef);
+        alert("Previous session removed. Logging in now...");
       }
 
-      // Store session in Firestore
+      // Save new session
       await setDoc(userRef, { sessionActive: true });
 
       alert("Signin Success!");
     } catch (err) {
-      alert("Invalid Credentials or Please Sign Up");
+      alert("Please Sign Up");
     }
   };
 
