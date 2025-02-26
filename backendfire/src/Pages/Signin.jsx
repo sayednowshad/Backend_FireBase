@@ -14,7 +14,7 @@ const Signin = () => {
         signInWithEmailAndPassword(auth , email , password)
         .then((value) => alert("Signin Success"))
         .catch((err) => alert("Please SignUp "));
-
+        
     }
 
   return (

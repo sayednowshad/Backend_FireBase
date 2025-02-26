@@ -1,12 +1,11 @@
-import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-import { useEffect, useState } from "react";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { app } from "./firebase";
+import { useEffect, useState } from "react";
+import { handleLogout } from "./auth"; // Import logout function
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import Signup from "./Pages/Signup";
 import Signin from "./Pages/Signin";
-import React from "react";
-import "./App.css";
 import Navbar from "./Components/Navbar";
-import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import Explore from "./Components/Explore";
 import Home from "./Components/Home";
 import About from "./Components/About";
@@ -24,30 +23,17 @@ const App = () => {
     });
 
     return () => unsubscribe();
-
   }, []);
 
   if (loading) {
-
-    return (
-      <div className="loading-container">
-        <div className="spinner"></div>
-        <p>Loading, please wait...</p>
-      </div>
-
-    );
+    return <p>Loading, please wait...</p>;
   }
 
   return (
-
     <Router>
-      
-      {user ? <Navbar auth={auth} /> : null}
+      {user && <Navbar auth={auth} onLogout={handleLogout} />} {/* Logout removes session */}
 
       <Routes>
-
-        {/* Show Signup & Signin when user is NOT logged in */}
-
         {!user ? (
           <>
             <Route path="/signup" element={<Signup />} />
@@ -56,20 +42,15 @@ const App = () => {
           </>
         ) : (
           <>
-
-            {/* Protected Routes: Only logged-in users can access */}
-
             <Route path="/explore" element={<Explore />} />
             <Route path="/home" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="*" element={<Navigate to="/home" replace />} />
-
           </>
-
         )}
       </Routes>
     </Router>
   );
 };
 
-export default App; 
+export default App;
