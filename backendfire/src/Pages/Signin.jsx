@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 import { app } from "../firebase";
 
 const auth = getAuth(app);
@@ -12,19 +12,15 @@ const Signin = () => {
 
   const SigninPage = async () => {
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      const userRef = doc(db, "activeSessions", user.uid);
-
+      const userRef = doc(db, "activeSessions", email);
       const sessionSnap = await getDoc(userRef);
 
       if (sessionSnap.exists()) {
-        // If already logged in, remove old session and log out previous device
-        await deleteDoc(userRef);
-        alert("Previous session removed. Logging in now...");
+        alert("This account is already logged in on another device!");
+        return;
       }
 
-      // Save new session
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
       await setDoc(userRef, { sessionActive: true });
 
       alert("Signin Success!");
@@ -43,13 +39,7 @@ const Signin = () => {
 
       <button
         onClick={SigninPage}
-        style={{
-          margin: "20px",
-          padding: "10px",
-          width: "100px",
-          marginLeft: "50px",
-          borderRadius: "5px",
-        }}
+        style={{ margin: "20px", padding: "10px", width: "160px", marginLeft: "50px", borderRadius: "5px" }}
       >
         Login
       </button>
