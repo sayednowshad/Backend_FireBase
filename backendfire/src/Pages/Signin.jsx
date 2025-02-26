@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 import { app } from "../firebase";
 
 const auth = getAuth(app);
@@ -9,28 +9,33 @@ const db = getFirestore(app);
 const Signin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const SigninPage = async () => {
+    setLoading(true);
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-      const userRef = doc(db, "activeSessions", user.uid);
-
+      const userRef = doc(db, "activeSessions", email);
       const sessionSnap = await getDoc(userRef);
 
       if (sessionSnap.exists()) {
-        // If already logged in, remove old session and log out previous device
-        await deleteDoc(userRef);
-        alert("Previous session removed. Logging in now...");
+        alert("This account is already logged in on another device!");
+        setLoading(false);
+        return;
       }
 
-      // Save new session
-      await setDoc(userRef, { sessionActive: true });
+      // Sign in user
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Save session in Firestore
+      await setDoc(doc(db, "activeSessions", user.uid), { sessionActive: true });
 
       alert("Signin Success!");
+      window.location.href = "/home"; // 🔥 Redirect to Home after Login
     } catch (err) {
-      alert("Please Sign Up");
+      alert("Invalid Email or Password. Please Sign Up.");
     }
+    setLoading(false);
   };
 
   return (
@@ -43,15 +48,18 @@ const Signin = () => {
 
       <button
         onClick={SigninPage}
+        disabled={loading}
         style={{
           margin: "20px",
           padding: "10px",
           width: "100px",
           marginLeft: "50px",
           borderRadius: "5px",
+          backgroundColor: loading ? "#999" : "#007bff",
+          cursor: loading ? "not-allowed" : "pointer",
         }}
       >
-        Login
+        {loading ? "Logging in..." : "Login"}
       </button>
     </div>
   );

@@ -4,6 +4,7 @@ import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "firebase/firestore
 const auth = getAuth();
 const db = getFirestore();
 
+// Track user session
 const trackUserSession = async (user) => {
   if (!user) return;
 
@@ -11,23 +12,28 @@ const trackUserSession = async (user) => {
   const existingSession = await getDoc(userRef);
 
   if (existingSession.exists()) {
-    // Remove previous session and log out old device
-    await deleteDoc(userRef);
-    alert("Previous session removed. You are now logged in.");
+    // If a session exists, log out the new login instantly
+    await signOut(auth);
+    alert("This account is already logged in on another device!");
+    window.location.href = "/signin";  // 🔥 Instant Redirect
+    return;
   }
 
-  // Store new session
+  // Save session for the logged-in user
   await setDoc(userRef, { sessionActive: true });
 };
 
+// Run session tracking on auth state change
 onAuthStateChanged(auth, (user) => {
   trackUserSession(user);
 });
 
+// Logout function (removes session & signs out)
 const handleLogout = async () => {
   if (auth.currentUser) {
-    await deleteDoc(doc(db, "activeSessions", auth.currentUser.uid)); // Remove session from Firestore
+    await deleteDoc(doc(db, "activeSessions", auth.currentUser.uid));
     await signOut(auth);
+    window.location.href = "/signin";  // 🔥 Instant Redirect
   }
 };
 

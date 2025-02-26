@@ -41,7 +41,7 @@ const App = () => {
       {user ? <Navbar auth={auth} onLogout={handleLogout} /> : null}
 
       <Routes>
-        {/* Protected Routes - Only logged-in users can access */}
+        {/* 🔥 Protected Routes - Only logged-in users can access */}
         {user ? (
           <>
             <Route path="/explore" element={<Explore />} />
@@ -50,10 +50,10 @@ const App = () => {
           </>
         ) : (
           <>
-            {/* Show Signup and Signin when not logged in */}
+            {/* 🔥 Show Signup and Signin when not logged in */}
             <Route path="/signup" element={<Signup />} />
             <Route path="/signin" element={<Signin />} />
-            {/* Redirect unauthenticated users to Signin */}
+            {/* 🔥 Redirect unauthenticated users to Signin */}
             <Route path="*" element={<Navigate to="/signin" replace />} />
           </>
         )}
