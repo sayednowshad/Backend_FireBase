@@ -12,7 +12,10 @@ const Signin = () => {
 
   const SigninPage = async () => {
     try {
-      const userRef = doc(db, "activeSessions", email);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      const userRef = doc(db, "activeSessions", user.uid);
+
       const sessionSnap = await getDoc(userRef);
 
       if (sessionSnap.exists()) {
@@ -20,12 +23,11 @@ const Signin = () => {
         return;
       }
 
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
       await setDoc(userRef, { sessionActive: true });
 
       alert("Signin Success!");
     } catch (err) {
-      alert("Please Sign Up");
+      alert("Invalid credentials. Please Sign Up first.");
     }
   };
 
@@ -39,7 +41,15 @@ const Signin = () => {
 
       <button
         onClick={SigninPage}
-        style={{ margin: "20px", padding: "10px", width: "160px", marginLeft: "50px", borderRadius: "5px" }}
+        style={{
+          margin: "20px",
+          padding: "10px",
+          width: "100px",
+          marginLeft: "50px",
+          borderRadius: "5px",
+          background : "black",
+          color : "white"
+        }}
       >
         Login
       </button>

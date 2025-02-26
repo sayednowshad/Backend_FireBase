@@ -1,5 +1,5 @@
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
-import { getFirestore, doc, setDoc, getDoc, deleteDoc } from "firebase/firestore";
+import { getFirestore, doc, getDoc, setDoc, deleteDoc } from "firebase/firestore";
 
 const auth = getAuth();
 const db = getFirestore();
@@ -7,12 +7,15 @@ const db = getFirestore();
 const trackUserSession = async (user) => {
   if (!user) return;
 
-  const userRef = doc(db, "activeSessions", user.email);
+  const userRef = doc(db, "activeSessions", user.uid);
   const existingSession = await getDoc(userRef);
 
-  if (!existingSession.exists()) {
-    await setDoc(userRef, { sessionActive: true });
+  if (existingSession.exists()) {
+    alert("This account is already logged in on another device!");
+    return;
   }
+
+  await setDoc(userRef, { sessionActive: true });
 };
 
 onAuthStateChanged(auth, (user) => {
@@ -21,7 +24,7 @@ onAuthStateChanged(auth, (user) => {
 
 const handleLogout = async () => {
   if (auth.currentUser) {
-    await deleteDoc(doc(db, "activeSessions", auth.currentUser.email));
+    await deleteDoc(doc(db, "activeSessions", auth.currentUser.uid));
     await signOut(auth);
   }
 };

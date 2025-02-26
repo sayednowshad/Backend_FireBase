@@ -10,7 +10,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-d
 import Explore from "./Components/Explore";
 import Home from "./Components/Home";
 import About from "./Components/About";
-import { handleLogout } from "./auth"; // Import the logout function
+import { handleLogout } from "./auth";
 
 const auth = getAuth(app);
 
@@ -24,7 +24,7 @@ const App = () => {
       setLoading(false);
     });
 
-    return () => unsubscribe(); // Cleanup function
+    return () => unsubscribe();
   }, []);
 
   if (loading) {
@@ -41,7 +41,6 @@ const App = () => {
       {user ? <Navbar auth={auth} onLogout={handleLogout} /> : null}
 
       <Routes>
-        {/* 🔥 Protected Routes - Only logged-in users can access */}
         {user ? (
           <>
             <Route path="/explore" element={<Explore />} />
@@ -50,10 +49,8 @@ const App = () => {
           </>
         ) : (
           <>
-            {/* 🔥 Show Signup and Signin when not logged in */}
             <Route path="/signup" element={<Signup />} />
             <Route path="/signin" element={<Signin />} />
-            {/* 🔥 Redirect unauthenticated users to Signin */}
             <Route path="*" element={<Navigate to="/signin" replace />} />
           </>
         )}
