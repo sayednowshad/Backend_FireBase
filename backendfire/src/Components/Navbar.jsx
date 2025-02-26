@@ -30,7 +30,7 @@ const Navbar = ({ auth }) => {
               <Link className="nav-link" to="/explore">Explore</Link>
             </li>
             <li className="nav-item">
-              <Link className="nav-link" to="/pricing">Pricing</Link>
+              <Link className="nav-link" to="/about">About</Link>
             </li>
             <li className="nav-item dropdown">
               <a
